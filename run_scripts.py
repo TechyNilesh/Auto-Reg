@@ -5,10 +5,10 @@ import argparse
 
 # List of dataset names
 dataset_name_list = [
-    # 'ailerons',
-    # 'elevators',
+    'ailerons',
+    'elevators',
     'fried',
-    # 'hyperA',
+    'hyperA',
     'FriedmanGsg',
     'FriedmanGra',
     'FriedmanLea',
@@ -22,17 +22,13 @@ dataset_name_list = [
 ]
 
 models = [
-    # 'chacha',
-    # 'soknl',
-    # 'arf',
-    # 'hat',
-    # 'eaml',
-    'asml',
-    # 'asml_base',
-    # 'asml_base_best',
-    # 'asml_med',
-    # 'asml_best',
-    # 'asml_moa'
+    'chacha',
+    'soknl',
+    'arf',
+    'hat',
+    'eaml',
+    'asml_reg',
+    'auto_reg'
 ]
 
 run_counts = range(27, 101)
@@ -49,16 +45,10 @@ def run_script(dataset_name, model_name, run_count=None, random_seed=False):
     print(f"Running {model_name.upper()} on {dataset_name} dataset with {run_count} runs and seed {seed}")
 
     command = ['python']
-    if model_name == 'asml':
+    if model_name == 'auto_reg':
+        command += ['auto_reg_run.py', '--dataset', dataset_name]
+    elif model_name == 'asml_reg':
         command += ['asml_reg_run.py', '--dataset', dataset_name]
-    elif model_name == 'asml_med':
-        command += ['asml_reg_run.py', '--dataset', dataset_name, '--aggregation_method', 'median']
-    elif model_name == 'asml_best':
-        command += ['asml_reg_run.py', '--dataset', dataset_name, '--prediction_mode', 'best']
-    elif model_name == 'asml_base':
-        command += ['asml_reg_base_run.py', '--dataset', dataset_name]
-    elif model_name == 'asml_base_best':
-        command += ['asml_reg_base_run.py', '--dataset', dataset_name, '--prediction_mode', 'best']
     elif model_name == 'eaml':
         command += ['eaml_reg_run.py', '--dataset', dataset_name]
     elif model_name == 'chacha':
@@ -69,8 +59,6 @@ def run_script(dataset_name, model_name, run_count=None, random_seed=False):
         command += ['arf_reg_run.py', '--dataset', dataset_name]
     elif model_name == 'hat':
         command += ['hat_reg_run.py', '--dataset', dataset_name]
-    elif model_name == 'asml_moa':
-        command += ['asml_moa_reg_run.py', '--dataset', dataset_name]
     else:
         print('Invalid model name')
         return

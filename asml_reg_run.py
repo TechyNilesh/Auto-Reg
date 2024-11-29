@@ -1,4 +1,4 @@
-from ASML_REG import AutoStreamRegressor
+from ASML_REG_BASE import AutoStreamRegressorBase
 import psutil
 import time
 import json
@@ -16,24 +16,20 @@ import argparse
 def main(dataset_name:str,
          run_count:int=None,
          EW:int=1000,
-         ES:int=5,
+         ES:int=3,
          B:int=10,
          PM:str='ensemble',
-         AM:str='mean',
          seed:int=42):
-    
-    # Currently, we are using default seed, but you can use a random seed for multiple runs.
-    #seed = random.randint(42,52)
 
     print(f"Loading dataset: {dataset_name}, Run Count: {run_count}, Random Seed:{seed}")
-    print(f"Current Hyperparameters: EW - {EW}, ES - {ES}, B - {B}, PM - {PM}, AM - {AM}")
+    print(f"Current Hyperparameters: EW - {EW}, ES - {ES}, B - {B}, PM - {PM}")
     
     stream = stream_from_file(f"RDatasets/{dataset_name}.arff")
 
     regressionEvaluator = RegressionEvaluator(schema=stream.get_schema())
     regressionWindowedEvaluator = RegressionWindowedEvaluator(schema=stream.get_schema(),window_size=1000)
 
-    ASR = AutoStreamRegressor(config_dict=None, #config_dict
+    ASR = AutoStreamRegressorBase(config_dict=None, #config_dict
         exploration_window=EW, # Window Size
         prediction_mode=PM, #change 'best' or 'ensemble' if you want best model prediction 
         budget=B,# How many pipelines run concurrently
@@ -41,7 +37,6 @@ def main(dataset_name:str,
         metric=metrics.RMSE(), # Online metrics
         feature_selection = True,
         verbose=False,
-        aggregation_method=AM, #mean, median
         seed=seed) # Random/Fixed seed
 
     t=0
@@ -77,18 +72,13 @@ def main(dataset_name:str,
     
     # saving results in dict
     save_record = {
-        "model": f'ASML_REG_BEST' if PM == 'best' else f'ASML_REG',
+        "model": f'ASML_REG_BASE_BEST' if PM == 'best' else f'ASML_REG_BASE',
         "dataset": dataset_name,
         "regressionEvaluator": regressionEvaluator.metrics_dict(),
         "windows_scores": regressionWindowedEvaluator.metrics_per_window().to_dict(orient='list'),
         "time": times,
         "memory": memories
     }
-    
-    save_record['model'] += '_PWHNS'
-    
-    if AM == 'median':
-        save_record['model'] += '_MED'
     
     if run_count is not None:
         file_name = f"{save_record['model']}_{save_record['dataset']}_{run_count}.json"
@@ -109,7 +99,6 @@ if __name__ == "__main__":
     parser.add_argument('--ensemble_size', type=int, default=5, help='Ensemble Size', required=False)
     parser.add_argument('--budget', type=int, default=10, help='Budget', required=False)
     parser.add_argument('--prediction_mode', type=str,default='ensemble', help='Prediction Mode', required=False)
-    parser.add_argument('--aggregation_method', type=str,default='mean', help='Aggregation Method', required=False)
     parser.add_argument('--seed', type=int, default=42, help='Random Seed', required=False)
     args = parser.parse_args()
     main(dataset_name=args.dataset,
@@ -118,5 +107,4 @@ if __name__ == "__main__":
          ES=args.ensemble_size,
          B=args.budget,
          PM=args.prediction_mode,
-         AM=args.aggregation_method,
          seed=args.seed)
