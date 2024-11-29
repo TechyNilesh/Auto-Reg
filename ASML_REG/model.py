@@ -4,7 +4,7 @@ import numpy as np
 import random
 
 
-class AutoStreamRegressorBase(base.Regressor):
+class AutoStreamRegressor(base.Regressor):
     def __init__(
         self,
         config_dict=None,

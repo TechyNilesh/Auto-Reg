@@ -1,4 +1,4 @@
-from ASML_REG_BASE import AutoStreamRegressorBase
+from ASML_REG import AutoStreamRegressor
 import psutil
 import time
 import json
@@ -29,7 +29,7 @@ def main(dataset_name:str,
     regressionEvaluator = RegressionEvaluator(schema=stream.get_schema())
     regressionWindowedEvaluator = RegressionWindowedEvaluator(schema=stream.get_schema(),window_size=1000)
 
-    ASR = AutoStreamRegressorBase(config_dict=None, #config_dict
+    ASR = AutoStreamRegressor(config_dict=None, #config_dict
         exploration_window=EW, # Window Size
         prediction_mode=PM, #change 'best' or 'ensemble' if you want best model prediction 
         budget=B,# How many pipelines run concurrently
